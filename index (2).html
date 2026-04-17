@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NERO — 湾岸レーサー</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== LOADING SCREEN ===== -->
+<div id="loading-screen">
+  <div class="loading-inner">
+    <div class="loading-logo">NERO</div>
+    <div class="loading-sub">WANGAN MIDNIGHT RACER · 湾岸</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
+    <div class="loading-pct" id="loading-pct">0%</div>
+  </div>
+</div>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div id="title-screen" class="screen hidden">
+  <div class="title-content">
+    <div class="title-logo">NERO<span class="title-dot">.</span></div>
+    <div class="title-tagline">WANGAN MIDNIGHT RACER · 湾岸</div>
+    <div class="title-sep"></div>
+
+    <!-- AT / MT 選択 -->
+    <div class="mode-label">TRANSMISSION</div>
+    <div class="mode-selector">
+      <button class="btn-mode active" id="btn-mode-at" onclick="selectMode('AT')">
+        <span class="mode-big">AT</span>
+        <span class="mode-sub">オートマ</span>
+      </button>
+      <button class="btn-mode" id="btn-mode-mt" onclick="selectMode('MT')">
+        <span class="mode-big">MT</span>
+        <span class="mode-sub">マニュアル</span>
+      </button>
+    </div>
+
+    <button class="btn-start" id="btn-start">RACE NOW</button>
+
+    <div class="title-controls-hint">
+      <span class="key-hint">W/↑</span> 前進&nbsp;&nbsp;
+      <span class="key-hint">S/↓</span> ブレーキ&nbsp;&nbsp;
+      <span class="key-hint">A&nbsp;D</span> ステア&nbsp;&nbsp;
+      <span class="key-hint">SPC</span> HB&nbsp;&nbsp;
+      <span class="key-hint">E</span> 乗降
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAME OVER SCREEN ===== -->
+<div id="gameover-screen" class="screen hidden">
+  <div class="go-content">
+    <div class="go-label">GAME OVER</div>
+    <div class="go-score-row">
+      <span class="go-score-label">SCORE</span>
+      <span class="go-score-val" id="go-score">0</span>
+    </div>
+    <div class="go-score-row">
+      <span class="go-score-label">BEST</span>
+      <span class="go-score-val" id="go-best">0</span>
+    </div>
+    <button class="btn-start" id="btn-retry">RETRY</button>
+  </div>
+</div>
+
+<!-- ===== HUD ===== -->
+<div id="hud" class="hidden">
+
+  <!-- TOP BAR -->
+  <div class="hud-top">
+    <div class="hud-block">
+      <div class="hud-label">SCORE</div>
+      <div class="hud-val" id="hud-score">0</div>
+    </div>
+    <div class="hud-block center">
+      <div class="hud-label">TIME</div>
+      <div class="hud-val" id="hud-time">0:00</div>
+    </div>
+    <div class="hud-block right">
+      <div class="hud-label">BEST</div>
+      <div class="hud-val" id="hud-best">0</div>
+    </div>
+  </div>
+
+  <!-- AT/MT MODE BADGE -->
+  <div id="mode-badge" class="mode-badge">AT</div>
+
+  <!-- SPEEDOMETER (right bottom) -->
+  <div class="hud-speedo">
+    <canvas id="speedo-canvas" width="160" height="160"></canvas>
+    <div class="speedo-center">
+      <div class="speedo-num" id="speedo-num">0</div>
+      <div class="speedo-unit">KM/H</div>
+    </div>
+    <div class="speedo-gear" id="speedo-gear">N</div>
+  </div>
+
+  <!-- MT GEAR BUTTONS (above speedo, hidden in AT) -->
+  <div id="gear-panel" class="gear-panel hidden">
+    <div class="gear-panel-label">GEAR</div>
+    <div class="gear-buttons-row" id="gear-buttons-row">
+      <button class="gb" data-g="1">1</button>
+      <button class="gb" data-g="2">2</button>
+      <button class="gb" data-g="3">3</button>
+      <button class="gb" data-g="4">4</button>
+      <button class="gb" data-g="5">5</button>
+      <button class="gb" data-g="6">6</button>
+    </div>
+    <div class="gear-shift-keys"><span class="gk">Z</span>↓&nbsp;&nbsp;<span class="gk">X</span>↑</div>
+  </div>
+
+  <!-- SHIFT UP FLASH -->
+  <div id="shift-hint" class="shift-hint hidden">SHIFT UP ↑</div>
+
+  <!-- MINIMAP (left bottom) -->
+  <div class="hud-minimap">
+    <canvas id="minimap-canvas" width="120" height="120"></canvas>
+  </div>
+
+  <!-- DAMAGE (above minimap) -->
+  <div class="hud-dmg-wrap">
+    <div class="hud-label">HEALTH</div>
+    <div class="hud-dmg-bar">
+      <div class="hud-dmg-fill" id="hud-dmg-fill"></div>
+    </div>
+  </div>
+
+  <!-- DRIVE STATUS -->
+  <div class="hud-status" id="hud-status">READY</div>
+
+  <!-- ENTER/EXIT HINTS -->
+  <div class="exit-hint hidden" id="exit-hint">[ E ] 降車</div>
+  <div class="enter-hint hidden" id="enter-hint">[ E ] 乗車</div>
+
+  <!-- ===== CONTROLS PANEL (screen left edge) ===== -->
+  <div id="ctrl-panel" class="ctrl-panel">
+    <div class="ctrl-header">CONTROLS</div>
+    <div class="ctrl-row"><kbd>W</kbd><kbd>↑</kbd> 前進</div>
+    <div class="ctrl-row"><kbd>S</kbd><kbd>↓</kbd> ブレーキ/後退</div>
+    <div class="ctrl-row"><kbd>A</kbd><kbd>D</kbd> ステアリング</div>
+    <div class="ctrl-row"><kbd>SPC</kbd> ハンドブレーキ</div>
+    <div class="ctrl-row"><kbd>E</kbd> 乗降</div>
+    <div id="ctrl-mt-rows" class="hidden">
+      <div class="ctrl-sep">── MT ──</div>
+      <div class="ctrl-row"><kbd>Z</kbd> シフトダウン</div>
+      <div class="ctrl-row"><kbd>X</kbd> シフトアップ</div>
+      <div class="ctrl-row"><kbd>1~6</kbd> 直接選択</div>
+    </div>
+  </div>
+
+</div><!-- /#hud -->
+
+<!-- FLASH EFFECTS -->
+<div id="bump-flash"   class="bump-flash"></div>
+<div id="damage-flash" class="damage-flash"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
